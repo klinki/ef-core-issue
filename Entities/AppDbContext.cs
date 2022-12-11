@@ -31,5 +31,24 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<Bond>();
 
         modelBuilder.Entity<InvestmentYield>().UseTpcMappingStrategy();
+
+        // TODO: This is the part of code which causes migrations to freeze.
+        // To prevent freezes, remove (or comment) code below:
+
+        var dividend = modelBuilder.Entity<Dividend>();
+        dividend.Property(e => e.InvestmentId)
+            .HasColumnName("stock_id");
+
+        dividend.HasOne<Stock>()
+            .WithMany(s => s.Dividends)
+            .HasForeignKey(e => e.InvestmentId);
+
+        var coupon = modelBuilder.Entity<Coupon>();
+        coupon.Property(e => e.InvestmentId)
+            .HasColumnName("bond_id");
+
+        coupon.HasOne<Bond>()
+            .WithMany(b => b.Coupons)
+            .HasForeignKey(e => e.InvestmentId);
     }
 }
